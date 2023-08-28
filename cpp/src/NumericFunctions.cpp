@@ -1044,9 +1044,14 @@ void updateTwiss(map<string, vector<double>> &table) {
     if (rho[i] != 0.0) {
       double rhoinv = 1.0 / rho[i];
 
+
+      /* 28/08/2023 - Original code from Tom
       // effect of poleface rotation
       double alfx = ax - bx * tan(e1) * rhoinv;
       double dpxx = dpx + dx * tan(e1) * rhoinv;
+      */
+      double alfx = ax;
+      double dpxx = dpx;
       double gamx = (1.0 + alfx * alfx) / bx;
 
       // global gradient combining weak focusing and dipole gradient
@@ -1084,9 +1089,15 @@ void updateTwiss(map<string, vector<double>> &table) {
       I1[i] = (dx * rhoinv) * l;
       I2[i] = l / rhoi2;
       I3[i] = l / fabs(rhoi3);
+
+      I4x[i] = dx * rhoinv * (rhoinv * rhoinv + 2 * k[i]) * l;
+      
+      /*
+      // 28/08/2023 Original code from Tom
       I4x[i] = dispaverage * rhoinv * (rhoinv * rhoinv + 2 * k[i]) * l -
-               rhoinv * rhoinv * (dx * tan(e1) + dx2 * tan(e2)) +
+              rhoinv * rhoinv * (dx * tan(e1) + dx2 * tan(e2)) +
                2.0 * rhoinv * k1sl * dy;
+      */     
 
       hx[i] = bx * dpxx * dpxx + 2.0 * alfx * dx * dpxx + gamx * dx * dx;
       // hx[i] = curlyhaverage;

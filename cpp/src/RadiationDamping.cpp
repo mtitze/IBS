@@ -269,8 +269,7 @@ double *RadiationDampingLifeTimesAndEquilibriumEmittancesWithPartitionNumbers(
 
   // mc**2 expressed in Joule to match units of cq
   double mass = restE * electron_volt_joule_relationship;
-  double cq = 55.0 / (32.0 * sqrt(3.0)) * (hbar * c) / mass;
-
+  double cq = 55.0 / (32.0 * sqrt(3.0)) * (hbar * c) / mass;  
   double sigE0E2 = cq * gamma * gamma * i3 / (2.0 * i2 + i4x + i4y);
   // ! = deltaE/E_0 see wiedemann p. 302,
   // and Wolski: E/(p0*c) - 1/beta0 = (E - E0)/(p0*c) = \Delta E/E0*beta0 with
