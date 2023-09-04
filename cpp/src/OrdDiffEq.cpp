@@ -357,18 +357,20 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   // progressbar
   int barWidth = 70;
   do {
-    std::cout << "[";
-    int progress = (double)i / ms * barWidth;
-    for (int j = 0; j < barWidth; ++j) {
-      if (j < progress)
-        std::cout << "=";
-      else if (j == progress)
-        std::cout << ">";
-      else
-        std::cout << " ";
-    }
-    std::cout << "]" << int((double)i / ms * 100) << " %\r";
-    std::cout.flush();
+    if (debug_output) {
+      std::cout << "[";
+      int progress = (double)i / ms * barWidth;
+      for (int j = 0; j < barWidth; ++j) {
+	if (j < progress)
+	  std::cout << "=";
+	else if (j == progress)
+	  std::cout << ">";
+	else
+	  std::cout << " ";
+      }
+      std::cout << "]" << int((double)i / ms * 100) << " %\r";
+      std::cout.flush();
+    };
     // update timestep
     ddt = min(tauradx, taurady);
     ddt = min(ddt, taurads);
@@ -514,10 +516,11 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   } while (i < ms && (fabs((ex[i] - ex[i - 1]) / ex[i - 1]) > threshold ||
                       fabs((ey[i] - ey[i - 1]) / ey[i - 1]) > threshold ||
                       fabs((sigs[i] - sigs[i - 1]) / sigs[i - 1]) > threshold));
-  // end progressbar
-  std::cout << std::endl;
 
   if (debug_output) {
+      // end progressbar
+      std::cout << std::endl;
+
       // print final values
       blue();
       printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
@@ -703,7 +706,9 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
     break;
   }
 
-  printouts(ibs);
+  if (debug_output) {
+      printouts(ibs);
+  };
 
   /*
   ================================================================================
@@ -712,19 +717,21 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   */
   int barWidth = 70;
   do {
-    // progress bar
-    std::cout << "[";
-    int progress = (double)i / nsteps * barWidth;
-    for (int j = 0; j < barWidth; ++j) {
-      if (j < progress)
-        std::cout << "=";
-      else if (j == progress)
-        std::cout << ">";
-      else
-        std::cout << " ";
-    }
-    std::cout << "]" << int((double)i / nsteps * 100) << " %\r";
-    std::cout.flush();
+    if (debug_output) {
+      // progress bar
+      std::cout << "[";
+      int progress = (double)i / nsteps * barWidth;
+      for (int j = 0; j < barWidth; ++j) {
+	if (j < progress)
+	  std::cout << "=";
+	else if (j == progress)
+	  std::cout << ">";
+	else
+	  std::cout << " ";
+      }
+      std::cout << "]" << int((double)i / nsteps * 100) << " %\r";
+      std::cout.flush();
+    };
 
     // ibs growth rates update
     switch (model) {
@@ -866,10 +873,10 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
     // while condition
   } while (i < nsteps);
 
-  // end progressbar
-  std::cout << std::endl;
-
   if (debug_output) {
+      // end progressbar
+      std::cout << std::endl;
+
       // print final values
       blue();
       printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
