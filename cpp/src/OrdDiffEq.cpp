@@ -21,7 +21,7 @@ void yellow() { printf("\033[1;33m"); }
 void green() { printf("\033[1;32m"); }
 void blue() { printf("\033[1;34m"); }
 void cyan() { printf("\033[1;36m"); }
-void reset() { printf("\033[0m"); }
+void reset_color_output() { printf("\033[0m"); }
 
 // method to use printf to print a formatted line
 void printline(string key, double value, string units) {
@@ -142,7 +142,7 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
          int nrf, double harmon[], double voltages[], vector<double> &t,
          vector<double> &ex, vector<double> &ey, vector<double> &sigs,
          vector<double> sige, int model, double pnumber, int couplingpercentage,
-         double threshold, string method) {
+         double threshold, string method, bool debug_output) {
 
   // safetey max steps
   int MaxSteps = 10000;
@@ -151,9 +151,11 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   if (!(method == "rlx" || method == "der")) {
     method = "der";
 
-    red();
-    printf("%-20s : (%s)\n", "Warning method set to ", method.c_str());
-    reset();
+    if (debug_output) {
+        red();
+        printf("%-20s : (%s)\n", "Warning method set to ", method.c_str());
+        reset_color_output();
+    };
   }
 
   if (threshold > 1.0 || threshold < 1.0e-6) {
@@ -214,32 +216,36 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   double ey0_coupled = max(coupling * equi[3], equi[4]);
   double sige0 = sigefromsigs(omega, equi[6], qs, gamma, gammatr);
 
-  cyan();
-  printf("Radiation Damping Times\n");
-  printf("=======================\n");
-  printline("Tau_rad_x", tauradx, "s");
-  printline("Tau_rad_y", taurady, "s");
-  printline("Tau_rad_s", taurads, "s");
+  if (debug_output) {
+      cyan();
+      printf("Radiation Damping Times\n");
+      printf("=======================\n");
+      printline("Tau_rad_x", tauradx, "s");
+      printline("Tau_rad_y", taurady, "s");
+      printline("Tau_rad_s", taurads, "s");
 
-  blue();
-  printf("\nLongitudinal Parameters\n");
-  printf("=======================\n");
-  printline("Synchrotron Tune", qs, "");
-  printline("Synchrotron Freq", omegas, "Hz");
-  printline("SigEOE2", sigeoe2, "");
-  printline("SigEOE ", sqrt(sigeoe2), "");
-  printline("eta", eta(gamma, gammatr), "");
-  printline("Sigs", sigs[0], "");
-  printline("Sigs_inf ", equi[6], "");
-  printline("SigE0 ", sige0, "");
+      blue();
+      printf("\nLongitudinal Parameters\n");
+      printf("=======================\n");
+      printline("Synchrotron Tune", qs, "");
+      printline("Synchrotron Freq", omegas, "Hz");
+      printline("SigEOE2", sigeoe2, "");
+      printline("SigEOE ", sqrt(sigeoe2), "");
+      printline("eta", eta(gamma, gammatr), "");
+      printline("Sigs", sigs[0], "");
+      printline("Sigs_inf ", equi[6], "");
+      printline("SigE0 ", sige0, "");
+  };
 
   sige0 = SigeFromRFAndSigs(equi[6], U0, charge, nrf, harmon, voltages, gamma,
                             gammatr, pc, len, phis, false);
 
-  // check value
-  cyan();
-  printf("%-20s : %20.6e (%s)\n", "Sige0 - check", sige0, "");
-  reset();
+  if (debug_output) {
+      // check value
+      cyan();
+      printf("%-20s : %20.6e (%s)\n", "Sige0 - check", sige0, "");
+      reset_color_output();
+  };
 
   // write first sige and sige2
   vector<double> sige2;
@@ -330,16 +336,18 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   int ms = (int)(10 * taum / ddt);
   ms = min(ms, MaxSteps);
 
-  // print initial IBS summary
-  printouts(ibs);
+  if (debug_output){
+      // print initial IBS summary
+      printouts(ibs);
 
-  // print run parameters
-  red();
-  printf("\nMax tau : %12.6e\n", taum);
-  printf("dt      : %12.6e\n", ddt);
-  printf("Max step: %i\n\n", ms);
-  printf("Coupling: %12.6f\n\n", coupling);
-  reset();
+      // print run parameters
+      red();
+      printf("\nMax tau : %12.6e\n", taum);
+      printf("dt      : %12.6e\n", ddt);
+      printf("Max step: %i\n\n", ms);
+      printf("Coupling: %12.6f\n\n", coupling);
+      reset_color_output();
+  };
 
   /*
   ================================================================================
@@ -509,23 +517,25 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   // end progressbar
   std::cout << std::endl;
 
-  // print final values
-  blue();
-  printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
-  printf("%-20s : %12.6e\n", "Final ey", ey[ey.size() - 1]);
-  printf("%-20s : %12.6e\n", "Final sigs", sigs[sigs.size() - 1]);
+  if (debug_output) {
+      // print final values
+      blue();
+      printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
+      printf("%-20s : %12.6e\n", "Final ey", ey[ey.size() - 1]);
+      printf("%-20s : %12.6e\n", "Final sigs", sigs[sigs.size() - 1]);
 
-  printf("%-20s : %12.6e\n", "Final tau_ibs_x", 1.0 / ibs[1]);
-  printf("%-20s : %12.6e\n", "Final tau_ibs_y", 1.0 / ibs[2]);
-  printf("%-20s : %12.6e\n", "Final tau_ibs_s", 1.0 / ibs[0]);
-  reset();
+      printf("%-20s : %12.6e\n", "Final tau_ibs_x", 1.0 / ibs[1]);
+      printf("%-20s : %12.6e\n", "Final tau_ibs_y", 1.0 / ibs[2]);
+      printf("%-20s : %12.6e\n", "Final tau_ibs_s", 1.0 / ibs[0]);
+      reset_color_output();
+  };
 }
 
 void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
          int nrf, double harmon[], double voltages[], vector<double> &t,
          vector<double> &ex, vector<double> &ey, vector<double> &sigs,
          vector<double> sige, int model, double pnumber, int nsteps,
-         double stepsize, int couplingpercentage, string method) {
+         double stepsize, int couplingpercentage, string method, bool debug_output) {
 
   // sanitize limit settings
   if (couplingpercentage > 100 || couplingpercentage < 0) {
@@ -535,9 +545,11 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   if (!(method == "rlx" || method == "der")) {
     method = "der";
 
-    red();
-    printf("%-20s : (%s)\n", "Warning method set to ", method.c_str());
-    reset();
+    if (debug_output) {
+        red();
+        printf("%-20s : (%s)\n", "Warning method set to ", method.c_str());
+        reset_color_output();
+    };
   }
 
   double coupling = (double)couplingpercentage / 100.0;
@@ -586,30 +598,40 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
 
   double ey0_coupled = max(coupling * equi[3], equi[4]);
 
-  cyan();
-  printf("Radiation Damping Times\n");
-  printf("=======================\n");
-  printf("%-30s %20.6e (%s)\n", "Tx :", tauradx, "");
-  printf("%-30s %20.6e (%s)\n", "Ty :", taurady, "");
-  printf("%-30s %20.6e (%s)\n", "Ts :", taurads, "");
+  if (debug_output) {
+      cyan();
+      printf("Radiation Damping Times\n");
+      printf("=======================\n");
+      printf("%-30s %20.6e (%s)\n", "Tx :", tauradx, "");
+      printf("%-30s %20.6e (%s)\n", "Ty :", taurady, "");
+      printf("%-30s %20.6e (%s)\n", "Ts :", taurads, "");
 
-  blue();
-  printf("\nLongitudinal Parameters\n");
-  printf("=======================\n");
-  printf("%-20s : %20.6e (%s)\n", "qs", qs, "");
-  printf("%-20s : %20.6e (%s)\n", "synch freq", omegas, "");
-  printf("%-20s : %20.6e (%s)\n", "SigEOE2", sigeoe2, "");
-  printf("%-20s : %20.6e (%s)\n", "SigEOE", sqrt(sigeoe2), "");
-  printf("%-20s : %20.6e (%s)\n", "eta", eta(gamma, gammatr), "");
-  printf("%-20s : %20.6e (%s)\n", "Sigs", sigs[0], "");
-  printf("%-20s : %20.6e (%s)\n", "Sigsinf", equi[6], "");
+      blue();
+      printf("\nLongitudinal Parameters\n");
+      printf("=======================\n");
+      printf("%-20s : %20.6e (%s)\n", "qs", qs, "");
+      printf("%-20s : %20.6e (%s)\n", "synch freq", omegas, "");
+      printf("%-20s : %20.6e (%s)\n", "SigEOE2", sigeoe2, "");
+      printf("%-20s : %20.6e (%s)\n", "SigEOE", sqrt(sigeoe2), "");
+      printf("%-20s : %20.6e (%s)\n", "eta", eta(gamma, gammatr), "");
+      printf("%-20s : %20.6e (%s)\n", "Sigs", sigs[0], "");
+      printf("%-20s : %20.6e (%s)\n", "Sigsinf", equi[6], "");
+      reset_color_output();
+  };
 
   double sige0 = sigefromsigs(omega, equi[6], qs, gamma, gammatr);
-  printf("%-20s : %20.6e (%s)\n", "Sige0", sige0, "");
+
+  if (debug_output) {
+      printf("%-20s : %20.6e (%s)\n", "Sige0", sige0, "");
+  };
+      
   sige0 = SigeFromRFAndSigs(equi[6], U0, charge, nrf, harmon, voltages, gamma,
                             gammatr, pc, len, phis, false);
-  printf("%-20s : %20.6e (%s)\n", "Sige0 - check", sige0, "");
-  reset();
+
+  if (debug_output) {
+      printf("%-20s : %20.6e (%s)\n", "Sige0 - check", sige0, "");
+      reset_color_output();
+  };
 
   sige0 = SigeFromRFAndSigs(sigs[0], U0, charge, nrf, harmon, voltages, gamma,
                             gammatr, pc, len, phis, false);
@@ -847,14 +869,16 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
   // end progressbar
   std::cout << std::endl;
 
-  // print final values
-  blue();
-  printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
-  printf("%-20s : %12.6e\n", "Final ey", ey[ey.size() - 1]);
-  printf("%-20s : %12.6e\n", "Final sigs", sigs[sigs.size() - 1]);
+  if (debug_output) {
+      // print final values
+      blue();
+      printf("%-20s : %12.6e\n", "Final ex", ex[ex.size() - 1]);
+      printf("%-20s : %12.6e\n", "Final ey", ey[ey.size() - 1]);
+      printf("%-20s : %12.6e\n", "Final sigs", sigs[sigs.size() - 1]);
 
-  printf("%-20s : %12.6e\n", "Final tau_ibs_x", 1.0 / ibs[1]);
-  printf("%-20s : %12.6e\n", "Final tau_ibs_y", 1.0 / ibs[2]);
-  printf("%-20s : %12.6e\n", "Final tau_ibs_s", 1.0 / ibs[0]);
-  reset();
+      printf("%-20s : %12.6e\n", "Final tau_ibs_x", 1.0 / ibs[1]);
+      printf("%-20s : %12.6e\n", "Final tau_ibs_y", 1.0 / ibs[2]);
+      printf("%-20s : %12.6e\n", "Final tau_ibs_s", 1.0 / ibs[0]);
+      reset_color_output();
+  };
 }

@@ -37,6 +37,7 @@ void WriteToFile(string filename, vector<double> &t, vector<double> &ex,
  * @param couplingpercentage hor/ver coupling in percentage
  * @param threshold evolution stop threshold
  * @param method simulation method (rlx or der)
+ * @param debug_output: print debug output
  * @note: Relaxation method based on implementation in BMAD
  *
  */
@@ -44,7 +45,7 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
          int nrf, double harmon[], double voltages[], vector<double> &t,
          vector<double> &ex, vector<double> &ey, vector<double> &sigs,
          vector<double> sige, int model, double pnumber, int couplingpercentage,
-         double threshold, string method);
+         double threshold, string method, bool debug_output=false);
 /**
  *
  * Run ODE simulation using auto time step.
@@ -63,7 +64,8 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
  * @param pnumber number of particles per bunch
  * @param nsteps number of simulation steps
  * @param stepsize time step size
- * @param couplingpercentage hor/ver coupling in percentage
+ * @param couplingpercentage hor/ver couplng in percentage
+ * @param debug_output: print debug output
  * @param method simulation method (rlx or der)
  *
  */
@@ -71,4 +73,4 @@ void ODE(map<string, double> &twiss, map<string, vector<double>> &twissdata,
          int nrf, double harmon[], double voltages[], vector<double> &t,
          vector<double> &ex, vector<double> &ey, vector<double> &sigs,
          vector<double> sige, int model, double pnumber, int nsteps,
-         double stepsize, int couplingpercentage, string method);
+         double stepsize, int couplingpercentage, string method, bool debug_output=false);

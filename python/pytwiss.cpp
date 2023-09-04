@@ -748,9 +748,9 @@ int n) { return simpson(ibsintegrand, ax, bx, a, b, c, al, bl, n);
            vector<double> h, vector<double> v, vector<double> &t,
            vector<double> &ex, vector<double> &ey, vector<double> &sigs,
            vector<double> sige, int model, double pnumber,
-           int couplingpercentage, double threshold, string method) {
+           int couplingpercentage, double threshold, string method, bool debug_output) {
           ODE(twiss, twissdata, h.size(), h.data(), v.data(), t, ex, ey, sigs,
-              sige, model, pnumber, couplingpercentage, threshold, method);
+              sige, model, pnumber, couplingpercentage, threshold, method, debug_output);
           map<string, vector<double>> res;
           res["t"] = t;
           res["ex"] = ex;
@@ -763,16 +763,16 @@ int n) { return simpson(ibsintegrand, ax, bx, a, b, c, al, bl, n);
         py::arg("t"), py::arg("ex"), py::arg("ey"), py::arg("sigs"),
         py::arg("sige"), py::arg("model"), py::arg("pnumber"),
         py::arg("couplingPercentage"), py::arg("threshold"),
-        py::arg("simulationMethod"));
+        py::arg("simulationMethod"), py::arg("debug_output")=false);
   m.def("runODE",
         [](map<string, double> &twiss, map<string, vector<double>> &twissdata,
            vector<double> h, vector<double> v, vector<double> &t,
            vector<double> &ex, vector<double> &ey, vector<double> &sigs,
            vector<double> sige, int model, double pnumber, int nsteps,
-           double stepsize, int couplingpercentage, string method) {
+           double stepsize, int couplingpercentage, string method, bool debug_output) {
           ODE(twiss, twissdata, h.size(), h.data(), v.data(), t, ex, ey, sigs,
               sige, model, pnumber, nsteps, stepsize, couplingpercentage,
-              method);
+              method, debug_output);
           map<string, vector<double>> res;
           res["t"] = t;
           res["ex"] = ex;
@@ -785,5 +785,5 @@ int n) { return simpson(ibsintegrand, ax, bx, a, b, c, al, bl, n);
         py::arg("voltages_rf"), py::arg("t"), py::arg("ex"), py::arg("ey"),
         py::arg("sigs"), py::arg("sige"), py::arg("model"), py::arg("pnumber"),
         py::arg("nsteps"), py::arg("stepsize"), py::arg("couplingPercentage"),
-        py::arg("simulationMethod"));
+        py::arg("simulationMethod"), py::arg("debug_output")=false);
 }
